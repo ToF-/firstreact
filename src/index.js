@@ -1,66 +1,99 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-/*
- * When <Clock /> is passed to ReactDOM.render(), React calls the
- * constructor of the Clock component. Since Clock needs to display
- * the current time, it initializes this.state with an object
- * including the current time. We will later update this state.
- *
- * React then calls the Clock component’s render() method.
- * This is how React learns what should be displayed on the screen.
- * React then updates the DOM to match the Clock’s render output.
- *
- * When the Clock output is inserted in the DOM, React calls the
- * componentDidMount() lifecycle method. Inside it, the Clock component
- * asks the browser to set up a timer to call the component’s
- * tick() method once a second.
- *
- * Every second the browser calls the tick() method. Inside it,
- * the Clock component schedules a UI update by calling setState()
- * with an object containing the current time. Thanks to the setState()
- * call, React knows the state has changed, and calls the render() method
- * again to learn what should be on the screen. This time, this.state.date
- * in the render() method will be different, and so the render output will
- * include the updated time. React updates the DOM accordingly.
- *
- * If the Clock component is ever removed from the DOM, React calls
- * the componentWillUnmount() lifecycle method so the timer is stopped.
- */
-
-class Clock extends React.Component {
+class Toggle extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { date: new Date() };
+        this.state = { isToggleOn: true };
+    // this binding is necessary to make `this` work in the callback
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    componentDidMount() {
-        this.timerID = setInterval(
-            () => this.tick(),
-            1000
-        );
-    }
-
-    componentDidUnmount() {
-        clearInterval(this.timerID);
-    }
-
-    tick() {
-        this.setState({ date: new Date() });
+    handleClick() {
+        this.setState( state => ({
+            isToggleOn: !state.isToggleOn
+        }));
     }
 
     render() {
-        return(
-            <div>
-            <h1>Hello world!</h1>
-            <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
-            </div>
+        return (
+            <button onClick={this.handleClick}>
+            {this.state.isToggleOn ? "ON" : "OFF"}
+            </button>
         );
     }
 }
 
+function UserGreeting(props) {
+    return <h1>Welcome back!</h1>;
+}
+
+function GuestGreeting(props) {
+    return <h1>Please sign up</h1>;
+}
+
+function Greeting(props) {
+    const isLoggedin = props.isLoggedIn;
+    if (isLoggedin) {
+        return <UserGreeting />;
+    }
+    return <GuestGreeting />;
+}
+
+function LoginButton(props) {
+    return (
+        <button onClick = {props.onClick}>
+        Login
+        </button>
+    );
+}
+
+function LogoutButton(props) {
+    return (
+        <button onClick = {props.onClick}>
+        Logout
+        </button>
+    );
+}
+
+class LoginControl extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleLoginClick = this.handleLoginClick.bind(this);
+        this.handleLogoutClick = this.handleLogoutClick.bind(this);
+        this.state = { isLoggedIn: false };
+    }
+
+    handleLoginClick() {
+        this.setState({ isLoggedIn: true });
+    }
+
+    handleLogoutClick() {
+        this.setState({ isLoggedIn: false });
+    }
+
+    render() {
+        const isLoggedIn = this.state.isLoggedIn;
+        let button;
+        if (isLoggedIn) {
+            button = <LogoutButton onClick={this.handleLogoutClick} />;
+        }
+        else {
+            button = <LoginButton onClick={this.handleLoginClick} />;
+        }
+        return (
+            <div>
+            <p>{isLoggedIn}</p>
+            <Greeting isLoggedIn={isLoggedIn} />
+            {button}
+            </div>
+        );
+
+    }
+}
+
+
 ReactDOM.render(
-    <Clock />,
+    <LoginControl />,
     document.getElementById('root')
 );
-
